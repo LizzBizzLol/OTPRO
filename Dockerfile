@@ -1,10 +1,11 @@
-#базовый образ
-FROM python:3.9-slim
+# Базовый образ
+FROM python:3.8
 
-#устанавливаем зависимости для сборки OpenCV из исходников
+# Установка зависимостей
 RUN apt-get update && apt-get install -y \
+    build-essential \
     cmake \
-    libgtk2.0-dev \
+    pkg-config \
     libjpeg-dev \
     libpng-dev \
     libtiff-dev \
@@ -14,28 +15,17 @@ RUN apt-get update && apt-get install -y \
     libv4l-dev \
     libxvidcore-dev \
     libx264-dev \
+    libgtk2.0-dev \
     libatlas-base-dev \
     gfortran \
-    libfreetype6-dev \
-    libhdf5-serial-dev \
-    libqtgui4 \
-    libqt4-test
+    && rm -rf /var/lib/apt/lists/*
 
-#скачиваем и собираем OpenCV
-RUN mkdir /opencv && cd /opencv && \
-    git clone https://github.com/opencv/opencv.git && \
-    cd opencv && mkdir build && cd build && \
-    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local .. && \
-    make -j$(nproc) && make install
+# Сборка и установка OpenCV
+RUN pip install opencv-python-headless
 
-#устанавливаем Python-библиотеки
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-#копируем приложение
+# Копирование приложения
+COPY . /app
 WORKDIR /app
-COPY face_detection.py .
-COPY default_image.jpg .
 
-#запуск по умолчанию
-ENTRYPOINT ["python", "face_detection.py"]
+# Запуск приложения
+CMD ["python", "face_detection.py"]
