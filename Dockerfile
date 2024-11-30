@@ -1,31 +1,18 @@
-# Базовый образ
-FROM python:3.8
+# Используем базовый образ Python
+FROM python:3.9-slim
 
-# Установка зависимостей
+# Устанавливаем зависимости
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    pkg-config \
-    libjpeg-dev \
-    libpng-dev \
-    libtiff-dev \
-    libavcodec-dev \
-    libavformat-dev \
-    libswscale-dev \
-    libv4l-dev \
-    libxvidcore-dev \
-    libx264-dev \
-    libgtk2.0-dev \
-    libatlas-base-dev \
-    gfortran \
-    && rm -rf /var/lib/apt/lists/*
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev && \
+    pip install opencv-python-headless
 
-# Сборка и установка OpenCV
-RUN pip install opencv-python-headless
-
-# Копирование приложения
-COPY . /app
+# Копируем файлы проекта
 WORKDIR /app
+COPY app/ app/
+COPY image.jpg image.jpg
 
-# Запуск приложения
-CMD ["python", "face_detection.py"]
+# Указываем команду запуска
+CMD ["python", "app/detect_faces.py", "image.jpg"]
